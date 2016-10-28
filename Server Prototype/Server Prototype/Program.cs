@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ConsoleApplication1
+namespace KeywordExtractorServer
 {
     class Program
     {
@@ -22,7 +22,32 @@ namespace ConsoleApplication1
 
 			var res = KeywordExtractor.ExtractKeywords(sites);
 
-			var myList = res.ToList();
+			DisplayResults(res);
+			Console.WriteLine("\n");
+
+			sites = new Dictionary<string, double>();
+
+			sites.Add("https://www.marshalltown.k12.ia.us/", 0);
+			sites.Add("https://twitter.com/mcsdbobcats", 0);
+			sites.Add("https://www.marshalltown.k12.ia.us/schools/miller-middle-school/", 0);
+			sites.Add("http://ci.marshalltown.ia.us/", 0);
+			sites.Add("https://marshalltown.com/", 0);
+			sites.Add("https://en.wikipedia.org/wiki/Marshalltown,_Iowa", 0);
+			sites.Add("http://www.visitmarshalltown.com/", 0);
+			sites.Add("http://www.timesrepublican.com/", 0);
+			sites.Add("https://www.marshalltown.org/", 0);
+			sites.Add("https://mcc.iavalley.edu/", 0);
+
+			res = KeywordExtractor.ExtractKeywords(sites);
+
+			DisplayResults(res);
+
+			while (true) ;
+		}
+
+		private static void DisplayResults(Dictionary<string, double> results)
+		{
+			var myList = results.ToList();
 
 			myList.Sort(
 				delegate (KeyValuePair<string, double> pair1,
@@ -31,15 +56,14 @@ namespace ConsoleApplication1
 					return pair1.Value.CompareTo(pair2.Value);
 				}
 			);
-			for(int i = 0; i < 5; i++)
+			for (int i = 0; i < 5 && i < myList.Count; i++)
 			{
 				Console.WriteLine($"-{myList[i]}");
 			}
-			for (int i = 0; i < 5; i++)
+			for (int i = 0; i < 5 && i < myList.Count; i++)
 			{
-				Console.WriteLine($"+{myList[myList.Count-1-i]}");
+				Console.WriteLine($"+{myList[myList.Count - 1 - i]}");
 			}
-			while (true) ;
 		}
     }
 }
