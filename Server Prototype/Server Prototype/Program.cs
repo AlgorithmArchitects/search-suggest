@@ -1,48 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 
 namespace KeywordExtractorServer
 {
     class Program
     {
-        static void Main(string[] args)
-        {
-			var sites = new Dictionary<string, double>();
-			sites.Add("https://en.wikipedia.org/wiki/Cat", 1);
-			sites.Add("https://www.cat.com/", -1);
-			sites.Add("https://finance.yahoo.com/quote/cat?ltr=1", -1);
-			sites.Add("http://www.vetstreet.com/cats/", .7);
-			sites.Add("http://mashable.com/category/cats/", .5);
-			sites.Add("https://www.google.com/finance?cid=5736", -1);
-			sites.Add("http://www.catphones.com/en-us/", -1);
-			sites.Add("http://www.theatlantic.com/magazine/archive/2012/03/how-your-cat-is-making-you-crazy/308873/", .5);
-			sites.Add("http://www.rd.com/advice/pets/how-to-decode-your-cats-behavior/", .3);
-			sites.Add("http://www.nybooks.com/articles/2016/09/29/killer-cats-are-winning/", .5);
+		static void Main(string[] args)
+		{
+			var listener = new TcpListener(IPAddress.Parse("127.0.0.1"), 1234);
 
-			var res = KeywordExtractor.ExtractKeywords(sites);
-
-			DisplayResults(res);
-			Console.WriteLine("\n");
-
-			sites = new Dictionary<string, double>();
-
-			sites.Add("https://www.marshalltown.k12.ia.us/", 0);
-			sites.Add("https://twitter.com/mcsdbobcats", 0);
-			sites.Add("https://www.marshalltown.k12.ia.us/schools/miller-middle-school/", 0);
-			sites.Add("http://ci.marshalltown.ia.us/", 0);
-			sites.Add("https://marshalltown.com/", 0);
-			sites.Add("https://en.wikipedia.org/wiki/Marshalltown,_Iowa", 0);
-			sites.Add("http://www.visitmarshalltown.com/", 0);
-			sites.Add("http://www.timesrepublican.com/", 0);
-			sites.Add("https://www.marshalltown.org/", 0);
-			sites.Add("https://mcc.iavalley.edu/", 0);
-
-			res = KeywordExtractor.ExtractKeywords(sites);
-
-			DisplayResults(res);
-
-			while (true) ;
+			listener.Start();
+			while (true)
+			{
+				//var client = listener.AcceptTcpClient();
+				var socket = listener.AcceptSocket();
+				Console.WriteLine("Accepted Socket Connection");
+				var bytes = new Byte[socket.Available];
+				socket.Receive(bytes);
+				Console.WriteLine("Received " + bytes);
+			}
 		}
 
 		private static void DisplayResults(Dictionary<string, double> results)
