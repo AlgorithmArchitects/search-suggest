@@ -3,13 +3,31 @@
 <head>
 <title> Search Results </title>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-<script type="text/javascript">
+</head>
+<body>
+<h1> Search: </h1>
+<a href="url">https://en.wikipedia.org/wiki/Cat</a>
+<p> Display results here </p>
+<span class="vote"> </span>
+  <p id="count">0</p>
+<span class="dvote"> </span>
+
+<script language="javascript">
+var x =0;
 $('.vote').click(function () {
-  console.log("click");
-  $(this).toggleClass('on');
+  x=x+1;
+  document.getElementById("count").innerHTML = x;
 });
+
+$('.dvote').click(function () {
+  x=x-1;
+  document.getElementById("count").innerHTML = x;
+});
+
 </script>
+
 <style media="screen" type="text/css">
+
 .vote {
   display: inline-block;
   overflow: hidden;
@@ -18,19 +36,28 @@ $('.vote').click(function () {
   cursor: pointer;
   background: url('http://i.stack.imgur.com/iqN2k.png');
   background-position: 0 -25px;
-}
+} 
+
+
 .vote.on {
   background-position: 0 2px;
 }
+
+.dvote {
+  display: inline-block;
+  overflow: hidden;
+  width: 40px;
+  height: 25px;
+  cursor: pointer;
+  background: url('http://i.stack.imgur.com/iqN2k.png');
+  background-position: 0 -25px;
+} 
+
+
+.dvote.on {
+  background-position: 0 2px;
+}
 </style>
-</head>
-<body>
-<h1> Search: </h1>
-<a href="url">https://en.wikipedia.org/wiki/Cat</a>
-<p> Display results here </p>
-
-
-Upvote: <span class="vote"> </span>
 
 </body>
 
