@@ -44,9 +44,18 @@
             pages = data.webPages.value;
             console.log(pages);
             $.each(pages, function(index, element) {
-                $('#search-results').append($('<div>', {
-                html: '<a target="_blank" href="' + element.displayUrl + '" >' + element.name + '</a>'
-                }));
+                if (element.displayUrl.includes("http")){
+                    $('#search-results').append($('<div>', {
+                    html: '<a target="_blank" href="' + element.displayUrl + '" >' + element.name + '</a>',
+                    class: "list-group-item"
+                    }));
+                }
+                else{
+                    $('#search-results').append($('<div>', {
+                    html: '<a target="_blank" href="http://' + element.displayUrl + '" >' + element.name + '</a>',
+                    class:"list-group-item"
+                    }));
+                }
             });
         })
         .fail(function() {
@@ -72,7 +81,8 @@
           </div>
       </div>
   </div>
-  <div class="row" id="search-results">
+  </div>
+  <div class="list-group" id="search-results" style="text-align: center;">
 
   </div>
   </body>
