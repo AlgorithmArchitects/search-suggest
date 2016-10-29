@@ -43,21 +43,30 @@
             search($('#search-box').val());
             }
         });
+
+    }); // End of document.ready
+    
     // Handle votes
-    $('.vote').on('click',function () {
+    function bindHandlers(){
+    $('.vote').on('click',function() {
   var vote = $(this).parent().children( ".count").html();
   var url = $(this).parent().children( "a").attr("href");
     $(this).parent().children( ".count").html(++vote);
-    console.log(url);
+    updateDB(url,vote);
 });
 
-$('.dvote').on('click',function () {
+$('.dvote').on('click',function() {
     var vote = $(this).parent().children( ".count").html();
     var url = $(this).parent().children( "a").attr("href");
     $(this).parent().children( ".count").html(--vote);
-  console.log(url);
+  updateDB(url,vote);
 });
-    }); // End of document.ready
+}
+
+function updateDB(url,count){
+  console.log(url);
+  console.log(count)
+}
     function search(term) {
         var subscription_key = "3676119700b04cd0b12d98dc57dc5aff";
         var params = {
@@ -98,6 +107,7 @@ $('.dvote').on('click',function () {
                     }));
                 }
             });
+            bindHandlers();
         })
         .fail(function() {
             alert("error");
