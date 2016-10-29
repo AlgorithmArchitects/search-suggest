@@ -26,6 +26,7 @@ namespace KeywordExtractorServer
 				var command = "";
 				while (command.Count() == 0 || command.Last() != '\n')
 				{
+					while (socket.Available == 0) ;
 					var bytes = new Byte[socket.Available];
 					socket.Receive(bytes, socket.Available, 0);
 					command += Encoding.UTF8.GetString(bytes);
@@ -48,30 +49,65 @@ namespace KeywordExtractorServer
 
 					var responseString = Encoding.UTF8.GetString(response);
 					socket.Send(response, response.Length, 0);
+
+					command = "";
+					var commandBytes = new LinkedList<byte>();
+					while (command.Count() == 0 || command.Last() != '\n')
+					{
+						while (socket.Available == 0) ;
+						var bytes = new Byte[socket.Available];
+						socket.Receive(bytes, socket.Available, 0);
+						foreach(var b in bytes)
+						{
+							commandBytes.AddLast(b);
+						}
+						command = GetDecodedData(bytes);
+						//command += Encoding.UTF8.GetString(bytes);
+					}
+					Console.WriteLine("Received " + command);
+
 					socket.Close();
 				}
 			}
 		}
 
-		private static void DisplayResults(Dictionary<string, double> results)
+		public static string GetDecodedData(byte[] buffer)
 		{
-			var myList = results.ToList();
+			byte b = buffer[1];
+			int dataLength = 0;
+			int totalLength = 0;
+			int keyIndex = 0;
 
-			myList.Sort(
-				delegate (KeyValuePair<string, double> pair1,
-				KeyValuePair<string, double> pair2)
-				{
-					return pair1.Value.CompareTo(pair2.Value);
-				}
-			);
-			for (int i = 0; i < 5 && i < myList.Count; i++)
+			if (b - 128 <= 125)
 			{
-				Console.WriteLine($"-{myList[i]}");
+				dataLength = b - 128;
+				keyIndex = 2;
+				totalLength = dataLength + 6;
 			}
-			for (int i = 0; i < 5 && i < myList.Count; i++)
+			else if (b - 128 == 126)
 			{
-				Console.WriteLine($"+{myList[myList.Count - 1 - i]}");
+				dataLength = BitConverter.ToInt16(new byte[] { buffer[3], buffer[2] }, 0);
+				keyIndex = 4;
+				totalLength = dataLength + 8;
 			}
+			else if (b - 128 == 127)
+			{
+				dataLength = (int)BitConverter.ToInt64(new byte[] { buffer[9], buffer[8], buffer[7], buffer[6], buffer[5], buffer[4], buffer[3], buffer[2] }, 0);
+				keyIndex = 10;
+				totalLength = dataLength + 14;
+			}
+
+			byte[] key = new byte[] { buffer[keyIndex], buffer[keyIndex + 1], buffer[keyIndex + 2], buffer[keyIndex + 3] };
+
+			int dataIndex = keyIndex + 4;
+			int count = 0;
+			for (int i = dataIndex; i < totalLength; i++)
+			{
+				buffer[i] = (byte)(buffer[i] ^ key[count % 4]);
+				count++;
+			}
+
+			return Encoding.ASCII.GetString(buffer, dataIndex, dataLength);
 		}
-    }
+	}
 }
