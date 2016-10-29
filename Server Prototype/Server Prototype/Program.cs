@@ -18,7 +18,6 @@ namespace KeywordExtractorServer
 
 			while (true)
 			{
-				var ints = new int[5];
 				listener.Start();
 				//var client = listener.AcceptTcpClient();
 				var socket = listener.AcceptSocket();
