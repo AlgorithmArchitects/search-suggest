@@ -1,0 +1,12 @@
+<html>
+
+<head>
+<title> Search Results </title>
+</head>
+
+<body>
+<h1> Search: </h1>
+<p> Display results here <p>
+</body>
+
+</html>
