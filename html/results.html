@@ -2,16 +2,22 @@
 
 <head>
 <title> Search Results </title>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <!-- More compact JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- General Bootstrap UI interaction-->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </head>
 <body>
 <h1> Search: </h1>
+<div class="list-group">
+<div class="result list-group-item">
 <a href="url">https://en.wikipedia.org/wiki/Cat</a>
-<p> Display results here </p>
-<span class="vote"> </span>
-  <p id="count">0</p>
-<span class="dvote"> </span>
-
+<span class="vote badge"> </span>
+  <span class="badge" id="count">0</span>
+<span class="dvote badge"> </span>
+</div>
+</div>
 <script language="javascript">
 var x =0;
 $('.vote').click(function () {
@@ -51,6 +57,9 @@ $('.dvote').click(function () {
   cursor: pointer;
   background: url('http://i.stack.imgur.com/iqN2k.png');
   background-position: 0 -25px;
+  -ms-transform: rotate(180deg); /* IE 9 */
+  -webkit-transform: rotate(180deg); /* Chrome, Safari, Opera */
+    transform: rotate(180deg);
 } 
 
 
