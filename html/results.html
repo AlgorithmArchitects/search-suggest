@@ -2,22 +2,14 @@
 
 <head>
 <title> Search Results </title>
-</head>
-
-<body>
-<h1> Search: </h1>
-<a href="url">https://en.wikipedia.org/wiki/Cat</a>
-<p> Display results here </p>
-
-
-<script language="javascript">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script type="text/javascript">
 $('.vote').click(function () {
+  console.log("click");
   $(this).toggleClass('on');
 });
 </script>
-
 <style media="screen" type="text/css">
-
 .vote {
   display: inline-block;
   overflow: hidden;
@@ -26,16 +18,17 @@ $('.vote').click(function () {
   cursor: pointer;
   background: url('http://i.stack.imgur.com/iqN2k.png');
   background-position: 0 -25px;
-} 
-
-
+}
 .vote.on {
   background-position: 0 2px;
 }
 </style>
+</head>
+<body>
+<h1> Search: </h1>
+<a href="url">https://en.wikipedia.org/wiki/Cat</a>
+<p> Display results here </p>
 
-
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 
 Upvote: <span class="vote"> </span>
 
