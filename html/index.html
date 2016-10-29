@@ -91,6 +91,7 @@ function updateDB(url,count){
         .done(function(data) {
             pages = data.webPages.value;
             console.log(pages);
+            $('#search-results').html('');
             $.each(pages, function(index, element) {
                 if (element.displayUrl.includes("http")){
                     $('#search-results').append($('<div>', {
