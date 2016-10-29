@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Search</title>
+    <!-- General UI-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <!-- More compact JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- General Bootstrap UI interaction-->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+    $(document).ready( function() {
+            $('#search-box').keydown(function (event) {
+    var keypressed = event.keyCode || event.which;
+    if (keypressed == 13) {
+        search($('#search-box').val());
+        }
+    });
+    });
+    function search(term) {
+        var subscription_key = "3676119700b04cd0b12d98dc57dc5aff";
+        var params = {
+            // Request parameters
+            "q": term,
+            "count": "16",
+            "offset": "0",
+            "mkt": "en-us",
+            "safesearch": "Moderate",
+        };
+      
+        $.ajax({
+            url: "https://api.cognitive.microsoft.com/bing/v5.0/search?" + $.param(params),
+            beforeSend: function(xhrObj){
+                // Request headers
+                xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key",subscription_key);
+            },
+            type: "GET",
+            // Request body
+            data: "{body}",
+        })
+        .done(function(data) {
+            pages = data.webPages.value;
+            console.log(pages);
+            $.each(pages, function(index, element) {
+                $('#search-results').append($('<div>', {
+                html: '<a target="_blank" href="' + element.displayUrl + '" >' + element.name + '</a>'
+                }));
+            });
+        })
+        .fail(function() {
+            alert("error");
+        });
+    }
+</script>
+  </head>
+  <body>
+  <div class="container">
+      <!-- Torrent Link Panel -->
+      <div id="selectbox" style="margin-top:50px;" class="col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
+          <div class="panel panel-success">
+              <div class="panel-heading">
+                  <div class="panel-title text-center">Search-Suggest</div>
+              </div>
+              <div style="padding-top:30px" class="panel-body">
+                <div style="margin-bottom: 25px" class="input-group">
+                    <span class="input-group-addon"><i class="glyphicon glyphicon-globe"></i></span>
+                    <input type="text" placeholder="Asta la vista, baby" id="search-box">
+              </div>
+              <button type="button" class="btn btn-default" onclick="search($('#search-box').val());">Search</button>
+          </div>
+      </div>
+  </div>
+  <div class="row" id="search-results">
+
+  </div>
+  </body>
+</html>
