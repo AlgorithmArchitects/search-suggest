@@ -48,6 +48,16 @@ namespace KeywordExtractorServer
 
 					var responseString = Encoding.UTF8.GetString(response);
 					socket.Send(response, response.Length, 0);
+
+					command = "";
+					while (command.Count() == 0 || command.Last() != '\n')
+					{
+						var bytes = new Byte[socket.Available];
+						socket.Receive(bytes, socket.Available, 0);
+						command += Encoding.UTF8.GetString(bytes);
+					}
+					Console.WriteLine("Received " + command);
+
 					socket.Close();
 				}
 			}

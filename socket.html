@@ -1,6 +1,6 @@
 <html>
 	<script>
-		var connection = new WebSocket('ws://localhost:1234', ['soap', 'xmpp']);
+		var connection = new WebSocket('ws://localhost:1234');
 		connection.onopen = function () {
 		connection.send('Ping'); // Send the message 'Ping' to the server
 		};
@@ -16,7 +16,7 @@
 		};
 		
 		connection.onopen = function (e) {
-			connection.send('This is a message!');
+			connection.send('This is a message!\n');
 		}
 		
 	</script>
