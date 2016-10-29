@@ -6,17 +6,38 @@
 
 <body>
 <h1> Search: </h1>
-<button type="button">+</button><a href="url">https://en.wikipedia.org/wiki/Cat</a>
+<a href="url">https://en.wikipedia.org/wiki/Cat</a>
 <p> Display results here </p>
-<button type="button">-</button>
 
 
+<script language="javascript">
+$('.vote').click(function () {
+  $(this).toggleClass('on');
+});
+</script>
 
+<style media="screen" type="text/css">
+
+.vote {
+  display: inline-block;
+  overflow: hidden;
+  width: 40px;
+  height: 25px;
+  cursor: pointer;
+  background: url('http://i.stack.imgur.com/iqN2k.png');
+  background-position: 0 -25px;
+} 
+
+
+.vote.on {
+  background-position: 0 2px;
+}
 </style>
-<div id="voting">
-    <div class="upvote"></div>
-    <div class="downvote"></div>
-</div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+
+Upvote: <span class="vote"> </span>
 
 </body>
 
