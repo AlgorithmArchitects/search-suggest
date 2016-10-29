@@ -7,27 +7,38 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <!-- General Bootstrap UI interaction-->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+    </script>
 </head>
 <body>
 <h1> Search: </h1>
 <div class="list-group">
 <div class="result list-group-item">
 <a href="url">https://en.wikipedia.org/wiki/Cat</a>
-<span class="vote badge"> </span>
-  <span class="badge" id="count">0</span>
 <span class="dvote badge"> </span>
+  <span class="badge count">0</span>
+<span class="vote badge"> </span>
+</div>
+<div class="result list-group-item">
+<a href="url">https://en.wikipedia.org/wiki/Dog</a>
+<span class="dvote badge"> </span>
+  <span class="badge count">0</span>
+<span class="vote badge"> </span>
 </div>
 </div>
-<script language="javascript">
-var x =0;
-$('.vote').click(function () {
-  x=x+1;
-  document.getElementById("count").innerHTML = x;
+<script type="text/javascript">
+$('.vote').click(function (event) {
+  var vote = $(this).parent().children( ".count").html();
+  var url = $(this).parent().children( "a").attr("href");
+    $(this).parent().children( ".count").html(++vote);
+    console.log(url);
 });
 
-$('.dvote').click(function () {
-  x=x-1;
-  document.getElementById("count").innerHTML = x;
+$('.dvote').click(function (event) {
+    var vote = $(this).parent().children( ".count").html();
+    var url = $(this).parent().children( "a").attr("href");
+    $(this).parent().children( ".count").html(--vote);
+  console.log(url);
 });
 
 </script>
@@ -59,8 +70,8 @@ $('.dvote').click(function () {
   background-position: 0 -25px;
   -ms-transform: rotate(180deg); /* IE 9 */
   -webkit-transform: rotate(180deg); /* Chrome, Safari, Opera */
-    transform: rotate(180deg);
-} 
+  transform: rotate(180deg);
+}
 
 
 .dvote.on {

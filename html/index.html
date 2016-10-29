@@ -10,15 +10,54 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <!-- General Bootstrap UI interaction-->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <style>
+    .vote {
+  display: inline-block;
+  overflow: hidden;
+  width: 40px;
+  height: 25px;
+  cursor: pointer;
+  background: url('http://i.stack.imgur.com/iqN2k.png');
+  background-position: 0 -25px;
+}
+
+.dvote {
+  display: inline-block;
+  overflow: hidden;
+  width: 40px;
+  height: 25px;
+  cursor: pointer;
+  background: url('http://i.stack.imgur.com/iqN2k.png');
+  background-position: 0 -25px;
+  -ms-transform: rotate(180deg); /* IE 9 */
+  -webkit-transform: rotate(180deg); /* Chrome, Safari, Opera */
+  transform: rotate(180deg);
+}
+    </style>
     <script type="text/javascript">
     $(document).ready( function() {
-            $('#search-box').keydown(function (event) {
-    var keypressed = event.keyCode || event.which;
-    if (keypressed == 13) {
-        search($('#search-box').val());
-        }
-    });
-    });
+        // Enter for searching
+        $('#search-box').keydown(function (event) {
+        var keypressed = event.keyCode || event.which;
+        if (keypressed == 13) {
+            search($('#search-box').val());
+            }
+        });
+    // Handle votes
+    $('.vote').on('click',function () {
+  var vote = $(this).parent().children( ".count").html();
+  var url = $(this).parent().children( "a").attr("href");
+    $(this).parent().children( ".count").html(++vote);
+    console.log(url);
+});
+
+$('.dvote').on('click',function () {
+    var vote = $(this).parent().children( ".count").html();
+    var url = $(this).parent().children( "a").attr("href");
+    $(this).parent().children( ".count").html(--vote);
+  console.log(url);
+});
+    }); // End of document.ready
     function search(term) {
         var subscription_key = "3676119700b04cd0b12d98dc57dc5aff";
         var params = {
@@ -46,13 +85,15 @@
             $.each(pages, function(index, element) {
                 if (element.displayUrl.includes("http")){
                     $('#search-results').append($('<div>', {
-                    html: '<a target="_blank" href="' + element.displayUrl + '" >' + element.name + '</a>',
+                    html: '<a target="_blank" href="' + element.displayUrl + '" >' + element.name + '</a>' +
+                    '<span class="dvote badge"> </span><span class="badge count">0</span><span class="vote badge"> </span>',
                     class: "list-group-item"
                     }));
                 }
                 else{
                     $('#search-results').append($('<div>', {
-                    html: '<a target="_blank" href="http://' + element.displayUrl + '" >' + element.name + '</a>',
+                    html: '<a target="_blank" href="http://' + element.displayUrl + '" >' + element.name + '</a>'+
+                    '<span class="dvote badge"> </span><span class="badge count">0</span><span class="vote badge"> </span>',
                     class:"list-group-item"
                     }));
                 }
