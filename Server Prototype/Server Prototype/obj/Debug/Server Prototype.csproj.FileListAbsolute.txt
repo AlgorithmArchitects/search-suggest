@@ -25,3 +25,10 @@ C:\Users\dorna\Documents\GitHub\search-suggest\Server Prototype\Server Prototype
 C:\Users\dorna\Documents\GitHub\search-suggest\Server Prototype\Server Prototype\bin\Debug\ConsoleApplication1.pdb
 C:\Users\dorna\Documents\GitHub\search-suggest\Server Prototype\Server Prototype\obj\Debug\Server Prototype.csprojResolveAssemblyReference.cache
 C:\Users\dorna\Documents\GitHub\search-suggest\Server Prototype\Server Prototype\bin\Debug\Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll
+C:\Users\carte\git\search-suggest\Server Prototype\Server Prototype\bin\Debug\ConsoleApplication1.exe.config
+C:\Users\carte\git\search-suggest\Server Prototype\Server Prototype\obj\Debug\ConsoleApplication1.exe
+C:\Users\carte\git\search-suggest\Server Prototype\Server Prototype\obj\Debug\ConsoleApplication1.pdb
+C:\Users\carte\git\search-suggest\Server Prototype\Server Prototype\bin\Debug\ConsoleApplication1.exe
+C:\Users\carte\git\search-suggest\Server Prototype\Server Prototype\bin\Debug\ConsoleApplication1.pdb
+C:\Users\carte\git\search-suggest\Server Prototype\Server Prototype\bin\Debug\Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll
+C:\Users\carte\git\search-suggest\Server Prototype\Server Prototype\obj\Debug\Server Prototype.csprojResolveAssemblyReference.cache
