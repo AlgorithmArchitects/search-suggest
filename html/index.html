@@ -148,43 +148,13 @@ function updateDB(url,count){
 
     function order(results){
        console.log(results[0].children( ".count").html());
-       mergeSort(results);
+       // Sort
+       results.sort(function(a, b){return b.children(".count").html()-a.children(".count").html()});
        $.each(results, function( index, item ){
             $('#search-results').append(item);
         });
+        return results;
     }
-
-function mergeSort(arr){
-   var len = arr.length;
-   if(len <2)
-      return arr;
-   var mid = Math.floor(len/2),
-       left = arr.slice(0,mid),
-       right =arr.slice(mid);
-   //send left and right to the mergeSort to broke it down into pieces
-   //then merge those
-   return merge(mergeSort(left),mergeSort(right));
-}
-
-function merge(left, right){
-  //  console.log(left[0].children( ".count").html());
-   // console.log(right[0].children( ".count").html());
-  var result = [],
-      lLen = left.length,
-      rLen = right.length,
-      l = 0,
-      r = 0;
-  while(l < lLen && r < rLen){
-     if(left[l].children( ".count").html() < right[r].children( ".count").html()){
-       result.push(left[l++]);
-     }
-     else{
-       result.push(right[r++]);
-    }
-  }  
-  //remaining part needs to be addred to the result
-  return result.concat(left.slice(l)).concat(right.slice(r));
-}
 </script>
   </head>
   <body>
