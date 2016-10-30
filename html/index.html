@@ -52,10 +52,9 @@
             var keypressed = event.keyCode || event.which;
             if (keypressed == 13) {
                 search($(this).val()).then(function(response) {
-                console.log("Success!", response);
-                order();
-                }, function(error) {
-                    alert(error);
+                order(response);
+                }).catch(function() {
+                    console.log(error);
                 });
                 }
             });
@@ -86,7 +85,6 @@ function bindDatabaseUpdate(index, element, item){
         if (val){
             item.children(".count").html(val);
         }
-            results.push(item);
     });
 }
 
@@ -135,8 +133,9 @@ function updateDB(url,count){
                     );
                     
                     //$('#search-results').append(item);
-                    bindDatabaseUpdate(index, element, item);
                     bindHandlers(item);
+                    bindDatabaseUpdate(index, element, item);
+                    results.push(item);
                 });
                 resolve(results);
             })
@@ -146,7 +145,9 @@ function updateDB(url,count){
             });
             });
     }
-    function order(){
+
+    function order(results){
+       console.log(results[0].children( ".count").html());
        mergeSort(results);
        $.each(results, function( index, item ){
             $('#search-results').append(item);
@@ -166,8 +167,8 @@ function mergeSort(arr){
 }
 
 function merge(left, right){
-    console.log(left[0].children( ".count").html());
-    console.log(right[0].children( ".count").html());
+  //  console.log(left[0].children( ".count").html());
+   // console.log(right[0].children( ".count").html());
   var result = [],
       lLen = left.length,
       rLen = right.length,
