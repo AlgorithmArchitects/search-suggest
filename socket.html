@@ -13,7 +13,7 @@
 		};
 		
 		connection.onopen = function (e) {
-			connection.send('This is a message!\n');
+			connection.send('{searchString: "cat kitten", results: [{url: "http://onemorelevel.com", value: 4}]}');
 		}
 		
 	</script>

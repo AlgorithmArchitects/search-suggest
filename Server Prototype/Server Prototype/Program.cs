@@ -52,7 +52,7 @@ namespace KeywordExtractorServer
 
 					command = "";
 					var commandBytes = new LinkedList<byte>();
-					while (command.Count() == 0 || command.Last() != '\n')
+					while (command.Count() == 0)
 					{
 						while (socket.Available == 0) ;
 						var bytes = new Byte[socket.Available];
@@ -62,9 +62,77 @@ namespace KeywordExtractorServer
 							commandBytes.AddLast(b);
 						}
 						command = GetDecodedData(bytes);
-						//command += Encoding.UTF8.GetString(bytes);
 					}
 					Console.WriteLine("Received " + command);
+
+					//extract the data from the command
+					var usedKeywords = new LinkedList<string>();
+
+					var index = command.IndexOf("searchString: \"");
+					if (index != -1)
+					{
+						command = command.Substring(index + 15);
+						index = command.IndexOf('\"');
+						var searchString = command.Substring(0, index);
+						command = command.Substring(index + 1);
+
+						var searchStrings = searchString.Split(' ');
+						foreach(var term in searchStrings)
+						{
+							usedKeywords.AddFirst(term);
+						}
+					}
+
+					var websites = new Dictionary<string, double>();
+					int maxWeight = 0;
+					int minWeight = 0;
+
+					while (command.Length > 0)
+					{
+						index = command.IndexOf("url: \"");
+						if (index == -1)
+							break;
+						command = command.Substring(index + 6);
+						index = command.IndexOf('\"');
+						var site = command.Substring(0, index);
+						command = command.Substring(index + 1);
+
+						index = command.IndexOf("value: ");
+						if (index == -1)
+							break;
+						command = command.Substring(index + 7);
+						index = command.IndexOf('}');
+						var weight = int.Parse(command.Substring(0, index));
+						if (weight < minWeight)
+							minWeight = weight;
+						if (weight > maxWeight)
+							maxWeight = weight;
+						websites.Add(site, weight);
+					}
+					minWeight *= -1;
+					var keys = websites.Keys.ToList();
+					foreach(var site in keys)
+					{
+						if (websites[site] < 0 && minWeight > 0)
+							websites[site] /= minWeight;
+						else if(maxWeight > 0)
+							websites[site] /= maxWeight;
+					}
+
+					var results = KeywordExtractor.ExtractKeywords(websites, usedKeywords).ToList();
+					results.Sort((x, y) => x.Value.CompareTo(y.Value));
+
+					var message = "";
+					for(int i = 0;i < 3 && i < results.Count; i++)
+					{
+						message += results[i].Key + ',' + results[i].Value + ',';
+					}
+					for(int i = results.Count - 1; i > results.Count - 3 && i > 2; i--)
+					{
+						message += results[i].Key + ',' + results[i].Value + ',';
+					}
+
+					socket.Send(Encoding.ASCII.GetBytes(message));
 
 					socket.Close();
 				}

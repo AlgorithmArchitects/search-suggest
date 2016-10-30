@@ -12,7 +12,7 @@ public class KeywordExtractor
 	/// </summary>
 	/// <param name="websites">A dictionary containing resolvable URIs and their weights.</param>
 	/// <returns>A dictionary containing potential search terms and their weighted relevance.</returns>
-	internal static Dictionary<string, double> ExtractKeywords(Dictionary<string, double> websites)
+	internal static Dictionary<string, double> ExtractKeywords(Dictionary<string, double> websites, LinkedList<string> usedSearchTerms)
 	{
 		System.Net.ServicePointManager.ServerCertificateValidationCallback +=
 			(se, cert, chain, sslerror) =>
@@ -25,6 +25,12 @@ public class KeywordExtractor
 		{
 			if(site.Value != 0)//Anything with a weight of 0 doesn't even need to be passed this far.
 				AnalyzeSite(site.Key, site.Value, ref keywords);
+		}
+
+		foreach(var usedTerm in usedSearchTerms)
+		{
+			if (keywords.ContainsKey(usedTerm))
+				keywords.Remove(usedTerm);
 		}
 
 		return keywords;
