@@ -56,32 +56,28 @@
     }); // End of document.ready
     
     // Handle votes
-function bindHandlers(){
-    $('.vote').on('click',function() {
-        var vote = $(this).parent().children( ".count").html();
-        var url = $(this).parent().children( "a").attr("href");
-        $(this).parent().children( ".count").html(++vote);
+function bindHandlers(item){
+    item.children(".vote").on('click',function() {
+        var vote = item.children( ".count").html();
+        var url = item.children( "a").attr("href");
+        item.children( ".count").html(++vote);
         updateDB(url,vote);
     });
 
-    $('.dvote').on('click',function() {
-        var vote = $(this).parent().children( ".count").html();
-        $(this).parent().children( ".count").html(--vote);
+    item.children('.dvote').on('click',function() {
+        var vote = item.children( ".count").html();
+        var url = item.children( "a").attr("href");
+        item.children( ".count").html(--vote);
         updateDB(url, vote);
     });
     
 }
-function bindDatabaseUpdate(index, element){
-    if (element.displayUrl.includes("http")){
-        var url = element.displayUrl;
-    }
-    else {
-        var url = "http://" + element.displayUrl;
-    }
+function bindDatabaseUpdate(index, element, item){
+    var url = element.displayUrl;
     database.ref('websites/' + websiteId(url) + "/count").on('value', function(snapshot){
         var val = snapshot.val();
         if (val){
-            $("#count" + index).html(val);
+            item.children(".count").html(val);
         }
     });
 }
@@ -116,26 +112,22 @@ function updateDB(url,count){
         })
         .done(function(data) {
             pages = data.webPages.value;
-            console.log(pages);
             $('#search-results').html('');
             $.each(pages, function(index, element) {
-                if (element.displayUrl.includes("http")){
-                    $('#search-results').append($('<div>', {
-                    html: '<a target="_blank" href="' + element.displayUrl + '" >' + element.name + '</a>' +
-                    '<span class="dvote badge"> </span><span id="count' + index + '" class="badge count">0</span><span class="vote badge"> </span>',
-                    class: "list-group-item"
-                    }));
+                if (!element.displayUrl.includes("http")){
+                    element.displayUrl = "http://" + element.displayUrl;
                 }
-                else{
-                    $('#search-results').append($('<div>', {
-                    html: '<a target="_blank" href="http://' + element.displayUrl + '" >' + element.name + '</a>'+
-                    '<span class="dvote badge"> </span><span id="count' + index + '" class="badge count">0</span><span class="vote badge"> </span>',
+                var item = $('<div>', {
+                    html: '<a target="_blank" href="' + element.displayUrl + '" >' + element.name + '</a>'+
+                    '<span class="dvote badge"> </span><span class="badge count">0</span><span class="vote badge"> </span>',
                     class:"list-group-item"
-                    }));
-                }
-                bindDatabaseUpdate(index, element);
+                    }
+                );
+                
+                $('#search-results').append(item);
+                bindDatabaseUpdate(index, element, item);
+                bindHandlers(item);
             });
-            bindHandlers();
         })
         .fail(function() {
             alert("error");
