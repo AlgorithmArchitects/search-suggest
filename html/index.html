@@ -10,6 +10,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <!-- General Bootstrap UI interaction-->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <!-- Voting DB req-->
     <script src="https://www.gstatic.com/firebasejs/3.5.2/firebase.js"></script>
     <style>
     .vote {
@@ -36,6 +37,7 @@
 }
     </style>
     <script type="text/javascript">
+        var results = [];
         var firebaseConfig = {
             authDomain: "project-3-ff314.firebaseapp.com",
             databaseURL: "https://project-3-ff314.firebaseio.com",
@@ -44,16 +46,21 @@
         };
         firebase.initializeApp(firebaseConfig);
         var database = firebase.database();
-    $(document).ready( function() {
-        // Enter for searching
-        $('#search-box').keydown(function (event) {
-        var keypressed = event.keyCode || event.which;
-        if (keypressed == 13) {
-            search($('#search-box').val());
-            }
-        });
+        $(document).ready( function() {
+            // Enter for searching
+            $('#search-box').keydown(function (event) {
+            var keypressed = event.keyCode || event.which;
+            if (keypressed == 13) {
+                search($(this).val()).then(function(response) {
+                console.log("Success!", response);
+                order();
+                }, function(error) {
+                    alert(error);
+                });
+                }
+            });
 
-    }); // End of document.ready
+        }); // End of document.ready
     
     // Handle votes
 function bindHandlers(item){
@@ -79,6 +86,7 @@ function bindDatabaseUpdate(index, element, item){
         if (val){
             item.children(".count").html(val);
         }
+            results.push(item);
     });
 }
 
@@ -90,49 +98,92 @@ function updateDB(url,count){
     database.ref('websites/' + websiteId(url)).set({count: count});
 }
     function search(term) {
-        var subscription_key = "3676119700b04cd0b12d98dc57dc5aff";
-        var params = {
-            // Request parameters
-            "q": term,
-            "count": "16",
-            "offset": "0",
-            "mkt": "en-us",
-            "safesearch": "Moderate",
-        };
-      
-        $.ajax({
-            url: "https://api.cognitive.microsoft.com/bing/v5.0/search?" + $.param(params),
-            beforeSend: function(xhrObj){
-                // Request headers
-                xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key",subscription_key);
-            },
-            type: "GET",
-            // Request body
-            data: "{body}",
-        })
-        .done(function(data) {
-            pages = data.webPages.value;
-            $('#search-results').html('');
-            $.each(pages, function(index, element) {
-                if (!element.displayUrl.includes("http")){
-                    element.displayUrl = "http://" + element.displayUrl;
-                }
-                var item = $('<div>', {
-                    html: '<a target="_blank" href="' + element.displayUrl + '" >' + element.name + '</a>'+
-                    '<span class="dvote badge"> </span><span class="badge count">0</span><span class="vote badge"> </span>',
-                    class:"list-group-item"
+        return new Promise(function(resolve, reject){
+            results = [];
+            var subscription_key = "3676119700b04cd0b12d98dc57dc5aff";
+            var params = {
+                // Request parameters
+                "q": term,
+                "count": "16",
+                "offset": "0",
+                "mkt": "en-us",
+                "safesearch": "Moderate",
+            };
+        
+            $.ajax({
+                url: "https://api.cognitive.microsoft.com/bing/v5.0/search?" + $.param(params),
+                beforeSend: function(xhrObj){
+                    // Request headers
+                    xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key",subscription_key);
+                },
+                type: "GET",
+                // Request body
+                data: "{body}",
+            })
+            .done(function(data) {
+                pages = data.webPages.value;
+                //$('#search-results').html('');
+                $.each(pages, function(index, element) {
+                    if (!element.displayUrl.includes("http")){
+                        element.displayUrl = "http://" + element.displayUrl;
                     }
-                );
-                
-                $('#search-results').append(item);
-                bindDatabaseUpdate(index, element, item);
-                bindHandlers(item);
+                    var item = $('<div>', {
+                        html: '<a target="_blank" href="' + element.displayUrl + '" >' + element.name + '</a>'+
+                        '<span class="dvote badge"> </span><span class="badge count">0</span><span class="vote badge"> </span>',
+                        class:"list-group-item"
+                        }
+                    );
+                    
+                    //$('#search-results').append(item);
+                    bindDatabaseUpdate(index, element, item);
+                    bindHandlers(item);
+                });
+                resolve(results);
+            })
+            .fail(function() {
+                alert("Search Error");
+                reject(Error("Could not search. API key still valid?"));
             });
-        })
-        .fail(function() {
-            alert("error");
+            });
+    }
+    function order(){
+       mergeSort(results);
+       $.each(results, function( index, item ){
+            $('#search-results').append(item);
         });
     }
+
+function mergeSort(arr){
+   var len = arr.length;
+   if(len <2)
+      return arr;
+   var mid = Math.floor(len/2),
+       left = arr.slice(0,mid),
+       right =arr.slice(mid);
+   //send left and right to the mergeSort to broke it down into pieces
+   //then merge those
+   return merge(mergeSort(left),mergeSort(right));
+}
+
+function merge(left, right){
+    console.log(left[0].children( ".count").html());
+    console.log(right[0].children( ".count").html());
+  var result = [],
+      lLen = left.length,
+      rLen = right.length,
+      l = 0,
+      r = 0;
+  while(l < lLen && r < rLen){
+     if(left[l].children( ".count").html() < right[r].children( ".count").html()){
+       result.push(left[l++]);
+     }
+     else{
+       result.push(right[r++]);
+    }
+  }  
+  //remaining part needs to be addred to the result
+  return result.concat(left.slice(l)).concat(right.slice(r));
+}
 </script>
   </head>
   <body>
@@ -148,7 +199,7 @@ function updateDB(url,count){
                     <span class="input-group-addon"><i class="glyphicon glyphicon-globe"></i></span>
                     <input type="text" placeholder="Asta la vista, baby" id="search-box">
               </div>
-              <button type="button" class="btn btn-default" onclick="search($('#search-box').val());">Search</button>
+              <button type="button" class="btn btn-default" onclick="search($('#search-box').val()).then(order);">Search</button>
           </div>
       </div>
   </div>
