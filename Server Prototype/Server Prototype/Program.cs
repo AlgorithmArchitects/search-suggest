@@ -85,7 +85,6 @@ namespace KeywordExtractorServer
 
 					var websites = new Dictionary<string, double>();
 					int maxWeight = 0;
-					int minWeight = 0;
 
 					while (command.Length > 0)
 					{
@@ -103,36 +102,37 @@ namespace KeywordExtractorServer
 						command = command.Substring(index + 7);
 						index = command.IndexOf('}');
 						var weight = int.Parse(command.Substring(0, index));
-						if (weight < minWeight)
-							minWeight = weight;
+
+						websites.Add(site, weight);
+
+						weight = Math.Abs(weight);
 						if (weight > maxWeight)
 							maxWeight = weight;
-						websites.Add(site, weight);
 					}
-					minWeight *= -1;
 					var keys = websites.Keys.ToList();
 					foreach(var site in keys)
 					{
-						if (websites[site] < 0 && minWeight > 0)
-							websites[site] /= minWeight;
-						else if(maxWeight > 0)
-							websites[site] /= maxWeight;
+						websites[site] /= maxWeight;
 					}
 
 					var results = KeywordExtractor.ExtractKeywords(websites, usedKeywords).ToList();
 					results.Sort((x, y) => x.Value.CompareTo(y.Value));
 
-					var message = "";
+					var message = "{searchTerms: [";
+					var messagePortions = new LinkedList<string>();
 					for(int i = 0;i < 3 && i < results.Count; i++)
 					{
-						message += results[i].Key + ',' + results[i].Value + ',';
+						messagePortions.AddLast($"{{term: \"{results[i].Key}\", value: {results[i].Value}}}");
 					}
 					for(int i = results.Count - 1; i > results.Count - 3 && i > 2; i--)
 					{
-						message += results[i].Key + ',' + results[i].Value + ',';
+						messagePortions.AddLast($"{{term: \"{results[i].Key}\", value: {results[i].Value}}}");
 					}
+					message += string.Join(",", messagePortions);
+					message += "]}";
 
-					socket.Send(Encoding.ASCII.GetBytes(message));
+					var returnBytes = GetEncodedData(message);
+					socket.Send(returnBytes);
 
 					socket.Close();
 				}
@@ -176,6 +176,37 @@ namespace KeywordExtractorServer
 			}
 
 			return Encoding.ASCII.GetString(buffer, dataIndex, dataLength);
+		}
+
+		public static byte[] GetEncodedData(string message)
+		{
+			var bytes = new LinkedList<byte>();
+			bytes.AddLast(129);
+
+			if(message.Length <= 125)
+			{
+				bytes.AddLast((byte)message.Length);
+			}
+			else if(message.Length <= 65535)
+			{
+				bytes.AddLast(126);
+				bytes.AddLast((byte)((message.Length >> 8) & 255));
+				bytes.AddLast((byte)(message.Length & 255));
+			}
+			else
+			{
+				bytes.AddLast(127);
+				for(int i = 7;i >= 0;i++)
+				{
+					bytes.AddLast((byte)((message.Length >> (i * 8)) & 255));
+				}
+			}
+			foreach(var c in message)
+			{
+				bytes.AddLast((byte)c);
+			}
+
+			return bytes.ToArray();
 		}
 	}
 }
