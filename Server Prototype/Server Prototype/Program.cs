@@ -79,6 +79,9 @@ namespace KeywordExtractorServer
 						var searchStrings = searchString.Split(' ');
 						foreach(var term in searchStrings)
 						{
+							var tempTerm = term;
+							if (tempTerm.StartsWith("-"))
+								tempTerm = tempTerm.Substring(1);
 							usedKeywords.AddFirst(term);
 						}
 					}
