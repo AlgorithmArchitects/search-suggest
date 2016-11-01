@@ -144,6 +144,7 @@ function updateDB(url,count){
 
     function order(results){
         if (results.length >= 15){
+            getKeywords(results);
             $('#search-results').html('');
         // Sort
         results.sort(function(a, b){return b.children(".count").html()-a.children(".count").html()});
@@ -156,6 +157,32 @@ function updateDB(url,count){
             setTimeout(function(){ order(results); }, 500);
         }
     }
+    function getKeywords(results){
+        var searchString = $("#search-box").val();
+        var resultsToSend = [];
+        $.each(results, function(index, item){
+            resultsToSend.push({url: item.children("a").attr("href"), value: parseInt(item.children(".count").html())});
+        });
+        var request = {searchString: searchString, results: resultsToSend};
+
+        console.log(JSON.stringify(request));
+
+
+		var connection = new WebSocket('ws://localhost:1234/service');
+        connection.onerror = function(error){
+			console.log('WebSocket Error ');
+            console.log(error);
+            console.log('No keywords will be suggested');
+		};
+		// Log messages from the server
+		connection.onmessage = function (e) {
+			console.log('Server: ' + e.data);
+		};
+		connection.onopen = function (e) {
+			connection.send(JSON.stringify(request));
+		};
+
+    };
 </script>
   </head>
   <body>
