@@ -1,20 +1,20 @@
 <html>
 	<script>
 		var connection = new WebSocket('ws://localhost:1234/service');
-		
+
 		// Log errors
 		connection.onerror = function (error) {
 			console.log('WebSocket Error ' + error);
 		};
-		
+
 		// Log messages from the server
 		connection.onmessage = function (e) {
 			console.log('Server: ' + e.data);
 		};
-		
+
 		connection.onopen = function (e) {
 			connection.send('{searchString: "cat kitten", results: [{url: "http://onemorelevel.com", value: 4}, {url: "http://notalwaysright.com", value: 2}, {url: "http://google.com", value: -1}]}');
 		}
-		
+
 	</script>
 </html>
