@@ -186,24 +186,7 @@
                 });
             });
             var request = {searchString: searchString, results: resultsToSend};
-
             console.log(JSON.stringify(request));
-
-            $("#bad").html('');
-            $("#good").html('');
-
-            var badKeywords = ['kek', 'NEET', '4chan'];
-            var goodKeywords = ['Hello', 'Smack', 'Oubliette'];
-
-            $.each(badKeywords, function(index, item){
-                addKeywordButton("#bad", item);
-            });
-            $.each(goodKeywords, function(index, item){
-                addKeywordButton("#good", item);
-            });
-
-
-
             var connection = new WebSocket('ws://localhost:1234/service');
             connection.onerror = function (error) {
                 console.log('WebSocket Error ');
@@ -212,7 +195,16 @@
             };
             // Log messages from the server
             connection.onmessage = function (e) {
-                console.log('Server: ' + e.data);
+                $("#bad").html('');
+                $("#good").html('');
+                $.each(JSON.parse(e.data).searchTerms, function(index, item){
+                    if(item.value < 0){
+                        addKeywordButton("#bad", item.term);
+                    }
+                    else{
+                        addKeywordButton("#good", item.term);
+                    }
+                });
             };
             connection.onopen = function (e) {
                 connection.send(JSON.stringify(request));
