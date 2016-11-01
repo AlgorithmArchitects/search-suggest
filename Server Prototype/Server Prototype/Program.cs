@@ -68,10 +68,10 @@ namespace KeywordExtractorServer
 					//extract the data from the command
 					var usedKeywords = new LinkedList<string>();
 
-					var index = command.IndexOf("searchString: \"");
+					var index = command.IndexOf("searchString:\"");
 					if (index != -1)
 					{
-						command = command.Substring(index + 15);
+						command = command.Substring(index + 14);
 						index = command.IndexOf('\"');
 						var searchString = command.Substring(0, index);
 						command = command.Substring(index + 1);
@@ -91,18 +91,18 @@ namespace KeywordExtractorServer
 
 					while (command.Length > 0)
 					{
-						index = command.IndexOf("url: \"");
+						index = command.IndexOf("url:\"");
 						if (index == -1)
 							break;
-						command = command.Substring(index + 6);
+						command = command.Substring(index + 5);
 						index = command.IndexOf('\"');
 						var site = command.Substring(0, index);
 						command = command.Substring(index + 1);
 
-						index = command.IndexOf("value: ");
+						index = command.IndexOf("value:");
 						if (index == -1)
 							break;
-						command = command.Substring(index + 7);
+						command = command.Substring(index + 6);
 						index = command.IndexOf('}');
 						var weight = int.Parse(command.Substring(0, index));
 
