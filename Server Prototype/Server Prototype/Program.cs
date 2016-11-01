@@ -120,20 +120,20 @@ namespace KeywordExtractorServer
 
 					var results = KeywordExtractor.ExtractKeywords(websites, usedKeywords).ToList();
 					results.Sort((x, y) => x.Value.CompareTo(y.Value));
-
-					var message = "{searchTerms: [";
+                    Console.WriteLine(results.Count);
+					var message = "{\"searchTerms\": [";
 					var messagePortions = new LinkedList<string>();
 					for(int i = 0;i < 3 && i < results.Count; i++)
 					{
-						messagePortions.AddLast($"{{term: \"{results[i].Key}\", value: {results[i].Value}}}");
+						messagePortions.AddLast($"{{\"term\": \"{results[i].Key}\", \"value\": {results[i].Value}}}");
 					}
 					for(int i = results.Count - 1; i > results.Count - 3 && i > 2; i--)
 					{
-						messagePortions.AddLast($"{{term: \"{results[i].Key}\", value: {results[i].Value}}}");
+						messagePortions.AddLast($"{{\"term\": \"{results[i].Key}\", \"value\": {results[i].Value}}}");
 					}
 					message += string.Join(",", messagePortions);
 					message += "]}";
-
+                    Console.WriteLine("Sent: " + message);
 					var returnBytes = GetEncodedData(message);
 					socket.Send(returnBytes);
 

@@ -197,6 +197,7 @@
             connection.onmessage = function (e) {
                 $("#bad").html('');
                 $("#good").html('');
+                console.log(e.data);
                 $.each(JSON.parse(e.data).searchTerms, function(index, item){
                     if(item.value < 0){
                         addKeywordButton("#bad", item.term);
