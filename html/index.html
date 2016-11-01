@@ -37,7 +37,7 @@
         }
 
         .panel-body {
-            display: none;
+            /*display: none;*/
         }
     </style>
     <script type="text/javascript">
@@ -109,7 +109,7 @@
                     "count": "16",
                     "offset": "0",
                     "mkt": "en-us",
-                    "safesearch": "Moderate",
+                    "safesearch": "Moderate"
                 };
                 $.ajax({
                     url: "https://api.cognitive.microsoft.com/bing/v5.0/search?" + $.param(params),
@@ -119,7 +119,7 @@
                     },
                     type: "GET",
                     // Request body
-                    data: "{body}",
+                    data: "{body}"
                 })
                         .done(function (data) {
                             pages = data.webPages.value;
@@ -203,7 +203,8 @@
             <div class="panel-heading">
                 <div class="panel-title text-center">Search-Suggest</div>
             </div>
-            <div style="padding-top:30px" class="panel-body">
+            <div class="panel-body">
+                <h3 style="text-align:center;">Extracted Keywords</h3>
                 <div id="keywords" style="margin-bottom: 25px;" class="row">
                     <div id="good" style="border: 5px solid green;" class="col-md-6">
                         Hello<br>
@@ -217,7 +218,7 @@
                     </div>
                 </div>
                 <button type="button" class="btn btn-default"
-                        onclick="">Improve
+                        onclick="">Insert
                 </button>
             </div>
             <div class="panel-footer">
