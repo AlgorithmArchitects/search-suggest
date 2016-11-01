@@ -35,9 +35,14 @@
             -webkit-transform: rotate(180deg); /* Chrome, Safari, Opera */
             transform: rotate(180deg);
         }
-
-        .panel-body {
-            display: none;
+        .keyword {
+            display: block;
+            margin-top: 2px;
+            margin-bottom: 2px;
+        }
+        .keyword-button{
+            display: inline-block;
+            margin-right: 10px;
         }
     </style>
     <script type="text/javascript">
@@ -164,6 +169,13 @@
                 }, 200);
             }
         }
+        function addKeyword(keyword){
+            $('#search-box').val($('#search-box').val() + " " + keyword);
+        };
+        function addKeywordButton(selector, keyword){
+            $(selector).append('<div class="keyword"><button type="button" onclick="addKeyword(' + "'" + keyword + "'" +
+                               ')" class="btn btn-default keyword-button" onclick="">+</button>' + keyword + '</div>');
+        }
         function getKeywords(results) {
             var searchString = $("#search-box").val();
             var resultsToSend = [];
@@ -176,6 +188,20 @@
             var request = {searchString: searchString, results: resultsToSend};
 
             console.log(JSON.stringify(request));
+
+            $("#bad").html('');
+            $("#good").html('');
+
+            var badKeywords = ['kek', 'NEET', '4chan'];
+            var goodKeywords = ['Hello', 'Smack', 'Oubliette'];
+
+            $.each(badKeywords, function(index, item){
+                addKeywordButton("#bad", item);
+            });
+            $.each(goodKeywords, function(index, item){
+                addKeywordButton("#good", item);
+            });
+
 
 
             var connection = new WebSocket('ws://localhost:1234/service');
@@ -206,19 +232,10 @@
             <div style="padding-top:30px" class="panel-body">
                 <div id="keywords" style="margin-bottom: 25px;" class="row">
                     <div id="good" style="border: 5px solid green;" class="col-md-6">
-                        Hello<br>
-                        Smack<br>
-                        Oubliette
                     </div>
                     <div id="bad" style="border: 5px solid red;" class="col-md-6">
-                        kek<br>
-                        NEET<br>
-                        4chan
                     </div>
                 </div>
-                <button type="button" class="btn btn-default"
-                        onclick="">Improve
-                </button>
             </div>
             <div class="panel-footer">
                 <div class="row">
