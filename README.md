@@ -2,9 +2,9 @@
 Basic improvement of search engine suggestions through a ranking system
 
 # Setup and Operating Instructions
-Database:
+Database: Nothing to do!
 
-WebPage:
+WebPage: [html/index.html](./html/index.html)
 
 Keyword Server:
 To run the C# server, two steps must be taken. First, the .config file must be modified. The config file will already include an entry similar to the following.
