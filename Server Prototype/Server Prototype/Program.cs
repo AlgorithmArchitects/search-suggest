@@ -20,7 +20,8 @@ namespace KeywordExtractorServer
 			{
 				listener.Start();
 				//var client = listener.AcceptTcpClient();
-				var socket = listener.AcceptSocket();
+				using (var socket = listener.AcceptSocket())
+				{
 				Console.WriteLine("Accepted Socket Connection");
 
 				var command = "";
@@ -33,111 +34,111 @@ namespace KeywordExtractorServer
 				}
 				Console.WriteLine("Received " + command);
 
-				if (new Regex("^GET").IsMatch(command))
-				{
-					Byte[] response = Encoding.UTF8.GetBytes("HTTP/1.1 101 Switching Protocols" + Environment.NewLine
-						+ "Connection: Upgrade" + Environment.NewLine
-						+ "Upgrade: websocket" + Environment.NewLine
-						+ "Sec-WebSocket-Accept: " + Convert.ToBase64String(
-							SHA1.Create().ComputeHash(
-								Encoding.UTF8.GetBytes(
-									new Regex("Sec-WebSocket-Key: (.*)").Match(command).Groups[1].Value.Trim() + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
+					if (new Regex("^GET").IsMatch(command))
+					{
+						Byte[] response = Encoding.UTF8.GetBytes("HTTP/1.1 101 Switching Protocols" + Environment.NewLine
+							+ "Connection: Upgrade" + Environment.NewLine
+							+ "Upgrade: websocket" + Environment.NewLine
+							+ "Sec-WebSocket-Accept: " + Convert.ToBase64String(
+								SHA1.Create().ComputeHash(
+									Encoding.UTF8.GetBytes(
+										new Regex("Sec-WebSocket-Key: (.*)").Match(command).Groups[1].Value.Trim() + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
+									)
 								)
-							)
-						) + Environment.NewLine
-						+ Environment.NewLine);
+							) + Environment.NewLine
+							+ Environment.NewLine);
 
-					var responseString = Encoding.UTF8.GetString(response);
-					socket.Send(response, response.Length, 0);
+						var responseString = Encoding.UTF8.GetString(response);
+						socket.Send(response, response.Length, 0);
 
-					command = "";
-					var commandBytes = new LinkedList<byte>();
-					while (command.Count() == 0)
-					{
-						while (socket.Available == 0) ;
-						var bytes = new Byte[socket.Available];
-						socket.Receive(bytes, socket.Available, 0);
-						foreach(var b in bytes)
+						command = "";
+						var commandBytes = new LinkedList<byte>();
+						while (command.Count() == 0)
 						{
-							commandBytes.AddLast(b);
+							while (socket.Available == 0) ;
+							var bytes = new Byte[socket.Available];
+							socket.Receive(bytes, socket.Available, 0);
+							foreach (var b in bytes)
+							{
+								commandBytes.AddLast(b);
+							}
+							command = GetDecodedData(bytes);
 						}
-						command = GetDecodedData(bytes);
-					}
-					Console.WriteLine("Received " + command);
+						Console.WriteLine("Received " + command);
 
-					//extract the data from the command
-					var usedKeywords = new LinkedList<string>();
+						//extract the data from the command
+						var usedKeywords = new LinkedList<string>();
 
-					var index = command.IndexOf("\"searchString\":\"");
-					if (index != -1)
-					{
-						command = command.Substring(index + 16);
-						index = command.IndexOf('\"');
-						var searchString = command.Substring(0, index);
-						command = command.Substring(index + 1);
-
-						var searchStrings = searchString.Split(' ');
-						foreach(var term in searchStrings)
+						var index = command.IndexOf("\"searchString\":\"");
+						if (index != -1)
 						{
-							var tempTerm = term;
-							if (tempTerm.StartsWith("-"))
-								tempTerm = tempTerm.Substring(1);
-							usedKeywords.AddFirst(tempTerm);
+							command = command.Substring(index + 16);
+							index = command.IndexOf('\"');
+							var searchString = command.Substring(0, index);
+							command = command.Substring(index + 1);
+
+							var searchStrings = searchString.Split(' ');
+							foreach (var term in searchStrings)
+							{
+								var tempTerm = term;
+								if (tempTerm.StartsWith("-"))
+									tempTerm = tempTerm.Substring(1);
+								usedKeywords.AddFirst(tempTerm);
+							}
 						}
+
+						var websites = new Dictionary<string, double>();
+						int maxWeight = 0;
+
+						while (command.Length > 0)
+						{
+							index = command.IndexOf("\"url\":\"");
+							if (index == -1)
+								break;
+							command = command.Substring(index + 7);
+							index = command.IndexOf('\"');
+							var site = command.Substring(0, index);
+							command = command.Substring(index + 1);
+
+							index = command.IndexOf("\"value\":");
+							if (index == -1)
+								break;
+							command = command.Substring(index + 8);
+							index = command.IndexOf('}');
+							var weight = int.Parse(command.Substring(0, index));
+
+							websites.Add(site, weight);
+
+							weight = Math.Abs(weight);
+							if (weight > maxWeight)
+								maxWeight = weight;
+						}
+						var keys = websites.Keys.ToList();
+						foreach (var site in keys)
+						{
+							websites[site] /= maxWeight;
+						}
+
+						var results = KeywordExtractor.ExtractKeywords(websites, usedKeywords).ToList();
+						results.Sort((x, y) => x.Value.CompareTo(y.Value));
+						Console.WriteLine(results.Count);
+						var message = "{\"searchTerms\": [";
+						var messagePortions = new LinkedList<string>();
+						for (int i = 0; i < 3 && i < results.Count; i++)
+						{
+							messagePortions.AddLast($"{{\"term\": \"{results[i].Key}\", \"value\": {results[i].Value}}}");
+						}
+						for (int i = results.Count - 1; i > results.Count - 4 && i > 2; i--)
+						{
+							messagePortions.AddLast($"{{\"term\": \"{results[i].Key}\", \"value\": {results[i].Value}}}");
+						}
+						message += string.Join(",", messagePortions);
+						message += "]}";
+						Console.WriteLine("Sent: " + message);
+						var returnBytes = GetEncodedData(message);
+						socket.Send(returnBytes);
+
 					}
-
-					var websites = new Dictionary<string, double>();
-					int maxWeight = 0;
-
-					while (command.Length > 0)
-					{
-						index = command.IndexOf("\"url\":\"");
-						if (index == -1)
-							break;
-						command = command.Substring(index + 7);
-						index = command.IndexOf('\"');
-						var site = command.Substring(0, index);
-						command = command.Substring(index + 1);
-
-						index = command.IndexOf("\"value\":");
-						if (index == -1)
-							break;
-						command = command.Substring(index + 8);
-						index = command.IndexOf('}');
-						var weight = int.Parse(command.Substring(0, index));
-
-						websites.Add(site, weight);
-
-						weight = Math.Abs(weight);
-						if (weight > maxWeight)
-							maxWeight = weight;
-					}
-					var keys = websites.Keys.ToList();
-					foreach(var site in keys)
-					{
-						websites[site] /= maxWeight;
-					}
-
-					var results = KeywordExtractor.ExtractKeywords(websites, usedKeywords).ToList();
-					results.Sort((x, y) => x.Value.CompareTo(y.Value));
-                    Console.WriteLine(results.Count);
-					var message = "{\"searchTerms\": [";
-					var messagePortions = new LinkedList<string>();
-					for(int i = 0;i < 3 && i < results.Count; i++)
-					{
-						messagePortions.AddLast($"{{\"term\": \"{results[i].Key}\", \"value\": {results[i].Value}}}");
-					}
-					for(int i = results.Count - 1; i > results.Count - 3 && i > 2; i--)
-					{
-						messagePortions.AddLast($"{{\"term\": \"{results[i].Key}\", \"value\": {results[i].Value}}}");
-					}
-					message += string.Join(",", messagePortions);
-					message += "]}";
-                    Console.WriteLine("Sent: " + message);
-					var returnBytes = GetEncodedData(message);
-					socket.Send(returnBytes);
-
-					socket.Close();
 				}
 			}
 		}
