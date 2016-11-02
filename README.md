@@ -19,6 +19,16 @@ This must be changed to reference an existing file that contains a number of wor
 
 
 Currently the server is hardcoded to operate on localhost. To access it using a standard WebSocket the URL `ws://localhost:1234/service` must be used. This can be easily changed should the need arrise.
+
+
+## Technology Stack
+* [Firebase DB](https://firebase.google.com/)
+* [jQuery](https://jquery.com/)
+* [Bing Search](http://www.bing.com/toolbox/bingsearchapi)
+* [Bootstrap](http://getbootstrap.com/)
+* [WebSocket API](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_server)
+
+
 ## References
 * Uses [word frequency data](http://www.wordfrequency.info/free.asp).
 * Code for extracting base text from HTML taken from [here](https://consultrikin.wordpress.com/2013/02/21/c-get-plain-text-from-html-string/).
