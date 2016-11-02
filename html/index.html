@@ -35,9 +35,14 @@
             -webkit-transform: rotate(180deg); /* Chrome, Safari, Opera */
             transform: rotate(180deg);
         }
-
-        .panel-body {
-            /*display: none;*/
+        .keyword {
+            display: block;
+            margin-top: 2px;
+            margin-bottom: 2px;
+        }
+        .keyword-button{
+            display: inline-block;
+            margin-right: 10px;
         }
     </style>
     <script type="text/javascript">
@@ -109,7 +114,7 @@
                     "count": "16",
                     "offset": "0",
                     "mkt": "en-us",
-                    "safesearch": "Moderate"
+                    "safesearch": "Moderate",
                 };
                 $.ajax({
                     url: "https://api.cognitive.microsoft.com/bing/v5.0/search?" + $.param(params),
@@ -119,7 +124,7 @@
                     },
                     type: "GET",
                     // Request body
-                    data: "{body}"
+                    data: "{body}",
                 })
                         .done(function (data) {
                             pages = data.webPages.value;
@@ -164,6 +169,13 @@
                 }, 200);
             }
         }
+        function addKeyword(keyword){
+            $('#search-box').val($('#search-box').val() + " " + keyword);
+        };
+        function addKeywordButton(selector, keyword, addKeyword){
+            $(selector).append('<div class="keyword"><button type="button" onclick="addKeyword(' + "'" + addKeyword + "'" +
+                               ')" class="btn btn-default keyword-button" onclick="">+</button>' + keyword + '</div>');
+        }
         function getKeywords(results) {
             var searchString = $("#search-box").val();
             var resultsToSend = [];
@@ -174,10 +186,7 @@
                 });
             });
             var request = {searchString: searchString, results: resultsToSend};
-
             console.log(JSON.stringify(request));
-
-
             var connection = new WebSocket('ws://localhost:1234/service');
             connection.onerror = function (error) {
                 console.log('WebSocket Error ');
@@ -186,7 +195,17 @@
             };
             // Log messages from the server
             connection.onmessage = function (e) {
-                console.log('Server: ' + e.data);
+                $("#bad").html('');
+                $("#good").html('');
+                console.log(e.data);
+                $.each(JSON.parse(e.data).searchTerms, function(index, item){
+                    if(item.value < 0){
+                        addKeywordButton("#bad", item.term, "-"+item.term);
+                    }
+                    else{
+                        addKeywordButton("#good", item.term, item.term);
+                    }
+                });
             };
             connection.onopen = function (e) {
                 connection.send(JSON.stringify(request));
@@ -203,23 +222,17 @@
             <div class="panel-heading">
                 <div class="panel-title text-center">Search-Suggest</div>
             </div>
-            <div class="panel-body">
-                <h3 style="text-align:center;">Extracted Keywords</h3>
+            <div style="padding-top:30px" class="panel-body">
+                <div style="margin-bottom: 0;" class="row">
+                    <div class="col-md-6" >Suggested keywords:</div>
+                    <div class="col-md-6" >Suggested keywords to ignore:</div>
+                </div>
                 <div id="keywords" style="margin-bottom: 25px;" class="row">
                     <div id="good" style="border: 5px solid green;" class="col-md-6">
-                        Hello<br>
-                        Smack<br>
-                        Oubliette
                     </div>
                     <div id="bad" style="border: 5px solid red;" class="col-md-6">
-                        kek<br>
-                        NEET<br>
-                        4chan
                     </div>
                 </div>
-                <button type="button" class="btn btn-default"
-                        onclick="">Insert
-                </button>
             </div>
             <div class="panel-footer">
                 <div class="row">

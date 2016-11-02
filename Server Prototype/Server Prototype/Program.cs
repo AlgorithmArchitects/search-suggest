@@ -68,10 +68,10 @@ namespace KeywordExtractorServer
 					//extract the data from the command
 					var usedKeywords = new LinkedList<string>();
 
-					var index = command.IndexOf("searchString: \"");
+					var index = command.IndexOf("\"searchString\":\"");
 					if (index != -1)
 					{
-						command = command.Substring(index + 15);
+						command = command.Substring(index + 16);
 						index = command.IndexOf('\"');
 						var searchString = command.Substring(0, index);
 						command = command.Substring(index + 1);
@@ -82,7 +82,7 @@ namespace KeywordExtractorServer
 							var tempTerm = term;
 							if (tempTerm.StartsWith("-"))
 								tempTerm = tempTerm.Substring(1);
-							usedKeywords.AddFirst(term);
+							usedKeywords.AddFirst(tempTerm);
 						}
 					}
 
@@ -91,18 +91,18 @@ namespace KeywordExtractorServer
 
 					while (command.Length > 0)
 					{
-						index = command.IndexOf("url: \"");
+						index = command.IndexOf("\"url\":\"");
 						if (index == -1)
 							break;
-						command = command.Substring(index + 6);
+						command = command.Substring(index + 7);
 						index = command.IndexOf('\"');
 						var site = command.Substring(0, index);
 						command = command.Substring(index + 1);
 
-						index = command.IndexOf("value: ");
+						index = command.IndexOf("\"value\":");
 						if (index == -1)
 							break;
-						command = command.Substring(index + 7);
+						command = command.Substring(index + 8);
 						index = command.IndexOf('}');
 						var weight = int.Parse(command.Substring(0, index));
 
@@ -120,20 +120,20 @@ namespace KeywordExtractorServer
 
 					var results = KeywordExtractor.ExtractKeywords(websites, usedKeywords).ToList();
 					results.Sort((x, y) => x.Value.CompareTo(y.Value));
-
-					var message = "{searchTerms: [";
+                    Console.WriteLine(results.Count);
+					var message = "{\"searchTerms\": [";
 					var messagePortions = new LinkedList<string>();
 					for(int i = 0;i < 3 && i < results.Count; i++)
 					{
-						messagePortions.AddLast($"{{term: \"{results[i].Key}\", value: {results[i].Value}}}");
+						messagePortions.AddLast($"{{\"term\": \"{results[i].Key}\", \"value\": {results[i].Value}}}");
 					}
 					for(int i = results.Count - 1; i > results.Count - 3 && i > 2; i--)
 					{
-						messagePortions.AddLast($"{{term: \"{results[i].Key}\", value: {results[i].Value}}}");
+						messagePortions.AddLast($"{{\"term\": \"{results[i].Key}\", \"value\": {results[i].Value}}}");
 					}
 					message += string.Join(",", messagePortions);
 					message += "]}";
-
+                    Console.WriteLine("Sent: " + message);
 					var returnBytes = GetEncodedData(message);
 					socket.Send(returnBytes);
 
