@@ -82,7 +82,7 @@ namespace KeywordExtractorServer
 							var tempTerm = term;
 							if (tempTerm.StartsWith("-"))
 								tempTerm = tempTerm.Substring(1);
-							usedKeywords.AddFirst(term);
+							usedKeywords.AddFirst(tempTerm);
 						}
 					}
 
