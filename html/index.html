@@ -172,8 +172,8 @@
         function addKeyword(keyword){
             $('#search-box').val($('#search-box').val() + " " + keyword);
         };
-        function addKeywordButton(selector, keyword){
-            $(selector).append('<div class="keyword"><button type="button" onclick="addKeyword(' + "'" + keyword + "'" +
+        function addKeywordButton(selector, keyword, addKeyword){
+            $(selector).append('<div class="keyword"><button type="button" onclick="addKeyword(' + "'" + addKeyword + "'" +
                                ')" class="btn btn-default keyword-button" onclick="">+</button>' + keyword + '</div>');
         }
         function getKeywords(results) {
@@ -200,10 +200,10 @@
                 console.log(e.data);
                 $.each(JSON.parse(e.data).searchTerms, function(index, item){
                     if(item.value < 0){
-                        addKeywordButton("#bad", item.term);
+                        addKeywordButton("#bad", item.term, "-"+item.term);
                     }
                     else{
-                        addKeywordButton("#good", item.term);
+                        addKeywordButton("#good", item.term, item.term);
                     }
                 });
             };
@@ -223,6 +223,10 @@
                 <div class="panel-title text-center">Search-Suggest</div>
             </div>
             <div style="padding-top:30px" class="panel-body">
+                <div style="margin-bottom: 0;" class="row">
+                    <div class="col-md-6" >Suggested keywords:</div>
+                    <div class="col-md-6" >Suggested keywords to ignore:</div>
+                </div>
                 <div id="keywords" style="margin-bottom: 25px;" class="row">
                     <div id="good" style="border: 5px solid green;" class="col-md-6">
                     </div>
